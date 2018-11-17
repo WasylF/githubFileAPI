@@ -31,7 +31,11 @@ public class FileAPI {
   }
 
   public boolean createFile(User user, String repositoryName, String filePath, String content, String commitMessage) throws IOException {
-    FileRequest createFileRequest = new CreateFileRequest(user, repositoryName, filePath, commitMessage, content);
+    return createFile(user, repositoryName, filePath, content, commitMessage, null);
+  }
+
+  public boolean createFile(User user, String repositoryName, String filePath, String content, String commitMessage, String branch) throws IOException {
+    FileRequest createFileRequest = new CreateFileRequest(user, repositoryName, filePath, commitMessage, content, branch);
 
     HttpResponse response = requestProcessor.sendPutRequest(createFileRequest);
 
