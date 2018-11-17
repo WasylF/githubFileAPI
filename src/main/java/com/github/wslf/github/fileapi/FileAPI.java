@@ -4,18 +4,17 @@ import com.github.wslf.github.User;
 import com.github.wslf.github.fileapi.requests.CreateFileRequest;
 import com.github.wslf.github.fileapi.requests.FileRequest;
 import com.github.wslf.github.fileapi.requests.GetFileRequest;
+import com.github.wslf.github.fileapi.responses.GetFileResponse;
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.json.JsonParser;
-import com.google.api.client.json.gson.GsonFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 public class FileAPI {
   private final RequestProcessor requestProcessor = new RequestProcessor();
-  private static final GsonFactory GSON_FACTORY = new GsonFactory();
+  private static final Gson GSON = new GsonBuilder().create();
 
   public static void main(String[] args) throws IOException {
     FileAPI api = new FileAPI();
@@ -24,7 +23,7 @@ public class FileAPI {
     String filePath = "folder1/f2/f3/f4/test6.txt";
     String content = "this is content of file test 6!";
     api.createFile(user, repo, filePath, content, "commit test 5");
-    String contentResponse = api.getFile(user, repo, filePath, null);
+    String contentResponse = api.getFileContent(user, repo, filePath, null);
     if (content.equals(contentResponse)) {
       System.out.println("It works");
     }
@@ -38,16 +37,22 @@ public class FileAPI {
     return response.isSuccessStatusCode();
   }
 
-  public String getFile(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
+  public GetFileResponse getFile(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
     GetFileRequest createFileRequest = new GetFileRequest(user, repositoryName, filePath, ref);
 
-    HttpResponse response = requestProcessor.sendGetRequest(createFileRequest);
+    HttpResponse httpResponse = requestProcessor.sendGetRequest(createFileRequest);
 
-    JsonParser parser = GSON_FACTORY.createJsonParser(response.getContent(), StandardCharsets.UTF_8);
-    parser.skipToKey("content");
-    String content = parser.getText().stripTrailing();
+    return GSON.fromJson(httpResponse.parseAsString(), GetFileResponse.class);
+  }
 
-    return new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
+  public String getFileContent(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
+    GetFileResponse getFileResponse = getFile(user, repositoryName, filePath, ref);
+    return getFileResponse.getContent();
+  }
+
+  public String getFileSHA(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
+    GetFileResponse getFileResponse = getFile(user, repositoryName, filePath, ref);
+    return getFileResponse.getSha();
   }
 
 }
