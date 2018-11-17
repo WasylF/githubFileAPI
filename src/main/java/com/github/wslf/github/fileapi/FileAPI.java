@@ -2,6 +2,7 @@ package com.github.wslf.github.fileapi;
 
 import com.github.wslf.github.User;
 import com.github.wslf.github.fileapi.requests.CreateFileRequest;
+import com.github.wslf.github.fileapi.requests.DeleteFileRequest;
 import com.github.wslf.github.fileapi.requests.FileRequest;
 import com.github.wslf.github.fileapi.requests.GetFileRequest;
 import com.github.wslf.github.fileapi.responses.GetFileResponse;
@@ -20,9 +21,10 @@ public class FileAPI {
     FileAPI api = new FileAPI();
     User user = new User("WslF", "...");
     String repo = "Test";
-    String filePath = "folder1/f2/f3/f4/test6.txt";
-    String content = "this is content of file test 6!";
-    api.createFile(user, repo, filePath, content, "commit test 5");
+    String filePath = "folder1/f2/f3/f4/test8.txt";
+    String content = "this is content of file test 8!";
+    api.deleteFile(user, repo, filePath, "commit to delete", null);
+    api.createFile(user, repo, filePath, content, "commit test 8");
     String contentResponse = api.getFileContent(user, repo, filePath, null);
     if (content.equals(contentResponse)) {
       System.out.println("It works");
@@ -38,9 +40,9 @@ public class FileAPI {
   }
 
   public GetFileResponse getFile(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
-    GetFileRequest createFileRequest = new GetFileRequest(user, repositoryName, filePath, ref);
+    GetFileRequest getFileRequest = new GetFileRequest(user, repositoryName, filePath, ref);
 
-    HttpResponse httpResponse = requestProcessor.sendGetRequest(createFileRequest);
+    HttpResponse httpResponse = requestProcessor.sendRequest(getFileRequest, "GET");
 
     return GSON.fromJson(httpResponse.parseAsString(), GetFileResponse.class);
   }
@@ -55,4 +57,12 @@ public class FileAPI {
     return getFileResponse.getSha();
   }
 
+  public boolean deleteFile(User user, String repositoryName, String filePath, String commitMessage, @Nullable String branch) throws IOException {
+    String sha = getFileSHA(user, repositoryName, filePath, branch);
+    DeleteFileRequest deleteFileRequest = new DeleteFileRequest(user, repositoryName, filePath, commitMessage, sha, branch);
+
+    HttpResponse httpResponse = requestProcessor.sendRequest(deleteFileRequest, "DELETE");
+
+    return httpResponse.isSuccessStatusCode();
+  }
 }

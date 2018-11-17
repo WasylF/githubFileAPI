@@ -4,20 +4,16 @@ import com.github.wslf.github.User;
 import com.github.wslf.github.fileapi.Constants;
 import com.google.api.client.http.GenericUrl;
 
-public class FileRequest {
+public class FileRequest extends GenericUrl {
   protected User user;
   protected String repositoryName;
   protected String filePath;
 
   public FileRequest(User user, String repositoryName, String filePath) {
+    super(String.format("%s%s/%s/contents/%s", Constants.GITHUB_API_REPOS, user.getName(), repositoryName, filePath));
     this.user = user;
     this.repositoryName = repositoryName;
     this.filePath = filePath;
-  }
-
-  public GenericUrl buildUrl() {
-    String url = String.format("%s%s/%s/contents/%s", Constants.GITHUB_API_REPOS, user.getName(), repositoryName, filePath);
-    return new GenericUrl(url);
   }
 
   public boolean hasAuth() {

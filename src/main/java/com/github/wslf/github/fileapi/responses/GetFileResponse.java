@@ -28,7 +28,7 @@ public class GetFileResponse extends FileResponse {
 
   private void decodeContent() {
     if (!isDecoded) {
-      this.content = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
+      this.content = new String(Base64.getDecoder().decode(content.strip()), StandardCharsets.UTF_8);
       isDecoded = true;
     }
   }
