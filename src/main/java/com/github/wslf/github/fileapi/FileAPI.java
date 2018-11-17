@@ -1,10 +1,7 @@
 package com.github.wslf.github.fileapi;
 
 import com.github.wslf.github.User;
-import com.github.wslf.github.fileapi.requests.CreateFileRequest;
-import com.github.wslf.github.fileapi.requests.DeleteFileRequest;
-import com.github.wslf.github.fileapi.requests.FileRequest;
-import com.github.wslf.github.fileapi.requests.GetFileRequest;
+import com.github.wslf.github.fileapi.requests.*;
 import com.github.wslf.github.fileapi.responses.GetFileResponse;
 import com.google.api.client.http.HttpResponse;
 import com.google.gson.Gson;
@@ -29,6 +26,8 @@ public class FileAPI {
     if (content.equals(contentResponse)) {
       System.out.println("It works");
     }
+    api.updateFile(user, repo, filePath, content + " updated", "commit test 8", "master");
+
   }
 
   public boolean createFile(User user, String repositoryName, String filePath, String content, String commitMessage) throws IOException {
@@ -64,5 +63,15 @@ public class FileAPI {
     HttpResponse httpResponse = requestProcessor.sendRequest(deleteFileRequest, "DELETE");
 
     return httpResponse.isSuccessStatusCode();
+  }
+
+  public boolean updateFile(User user, String repositoryName, String filePath, String content, String commitMessage, String branch) throws IOException {
+    String sha = getFileSHA(user, repositoryName, filePath, branch);
+
+    FileRequest createFileRequest = new UpdateFileRequest(user, repositoryName, filePath, commitMessage, sha, content, branch);
+
+    HttpResponse response = requestProcessor.sendPutRequest(createFileRequest);
+
+    return response.isSuccessStatusCode();
   }
 }
