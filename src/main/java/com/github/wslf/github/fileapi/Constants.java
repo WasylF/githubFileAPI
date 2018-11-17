@@ -1,4 +1,4 @@
-package com.github.wslf.githubfileapi;
+package com.github.wslf.github.fileapi;
 
 public class Constants {
 
