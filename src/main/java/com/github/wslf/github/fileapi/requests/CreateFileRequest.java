@@ -16,11 +16,13 @@ public class CreateFileRequest extends FileRequest {
   @Nullable
   private final String branch;
 
-  public CreateFileRequest(User user, String repositoryName, String filePath, String commitMessage, String originalContent) {
+  public CreateFileRequest(User user, String repositoryName, String filePath, String commitMessage,
+                           String originalContent) {
     this(user, repositoryName, filePath, commitMessage, originalContent, null);
   }
 
-  public CreateFileRequest(User user, String repositoryName, String filePath, String commitMessage, String originalContent, @Nullable String branch) {
+  public CreateFileRequest(User user, String repositoryName, String filePath, String commitMessage,
+                           String originalContent, @Nullable String branch) {
     super(user, repositoryName, filePath);
     this.message = commitMessage;
     this.content = Base64.getEncoder().encodeToString(originalContent.getBytes(StandardCharsets.UTF_8));

@@ -15,7 +15,8 @@ public class DeleteFileRequest extends FileRequest {
   @Nullable
   final String branch;
 
-  public DeleteFileRequest(User user, String repositoryName, String filePath, String message, String sha, String branch) {
+  public DeleteFileRequest(User user, String repositoryName, String filePath, String message, String sha,
+                           String branch) {
     super(user, repositoryName, filePath);
     this.message = message;
     this.sha = sha;
