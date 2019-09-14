@@ -1,6 +1,6 @@
 package com.github.wslf.github.fileapi;
 
-import com.github.wslf.github.User;
+import com.github.wslf.github.Credentials;
 import com.github.wslf.github.fileapi.requests.*;
 import com.github.wslf.github.fileapi.responses.GetFileResponse;
 import com.google.api.client.http.HttpResponse;
@@ -18,17 +18,17 @@ import java.io.IOException;
  * <pre>
  * {@code
  *     FileAPI api = new FileAPI();
- *     User user = new User("WslF", "...");
+ *     Credentials credentials = new Credentials("WslF", "...");
  *     String repo = "Test";
  *     String filePath = "folder1/f2/f3/f4/test.txt";
  *     String content = "this is content of file test!";
- *     api.createFile(user, repo, filePath, content, "commit test");
- *     String contentResponse = api.getFileContent(user, repo, filePath, null);
+ *     api.createFile(credentials, repo, filePath, content, "commit test");
+ *     String contentResponse = api.getFileContent(credentials, repo, filePath, null);
  *     if (content.equals(contentResponse)) {
  *       System.out.println("It works");
  *     }
- *     api.updateFile(user, repo, filePath, content + " updated", "commit test", "master");
- *     api.deleteFile(user, repo, filePath, "commit to delete", null);
+ *     api.updateFile(credentials, repo, filePath, content + " updated", "commit test", "master");
+ *     api.deleteFile(credentials, repo, filePath, "commit to delete", null);
  * }
  * </pre>
  */
@@ -40,35 +40,35 @@ public class FileAPI {
   /**
    * Creates file in the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param content        content of the file you'd like to create.
    * @param commitMessage  message for the commit.
    * @return shamefulness of the operation.
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file already exists.
    */
-  public boolean createFile(User user, String repositoryName, String filePath, String content,
+  public boolean createFile(Credentials credentials, String repositoryName, String filePath, String content,
                             String commitMessage) throws IOException {
-    return createFile(user, repositoryName, filePath, content, commitMessage, null);
+    return createFile(credentials, repositoryName, filePath, content, commitMessage, null);
   }
 
   /**
    * Creates file in the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param content        content of the file you'd like to create.
    * @param commitMessage  message for the commit.
    * @param branch         name of the brunch, you'd like to create file.
    * @return successfulness of the operation.
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file already exists.
    */
-  public boolean createFile(User user, String repositoryName, String filePath, String content, String commitMessage,
-                            String branch) throws IOException {
+  public boolean createFile(Credentials credentials, String repositoryName, String filePath, String content,
+                            String commitMessage, String branch) throws IOException {
     FileRequest createFileRequest =
-        new CreateFileRequest(user, repositoryName, filePath, commitMessage, content, branch);
+        new CreateFileRequest(credentials, repositoryName, filePath, commitMessage, content, branch);
 
     HttpResponse response = requestProcessor.sendPutRequest(createFileRequest);
 
@@ -78,16 +78,16 @@ public class FileAPI {
   /**
    * Reads file from the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param ref            name of the commit/branch/tag. Default: the repository’s default branch (usually master)
    * @return File's content and sha
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file doesn't exist.
    */
-  public GetFileResponse getFile(User user, String repositoryName, String filePath,
+  public GetFileResponse getFile(Credentials credentials, String repositoryName, String filePath,
                                  @Nullable String ref) throws IOException {
-    GetFileRequest getFileRequest = new GetFileRequest(user, repositoryName, filePath, ref);
+    GetFileRequest getFileRequest = new GetFileRequest(credentials, repositoryName, filePath, ref);
 
     HttpResponse httpResponse = requestProcessor.sendRequest(getFileRequest, "GET");
 
@@ -97,50 +97,51 @@ public class FileAPI {
   /**
    * Reads file's content from the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param ref            name of the commit/branch/tag. Default: the repository’s default branch (usually master)
    * @return File's content
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file doesn't exist.
    */
-  public String getFileContent(User user, String repositoryName, String filePath,
+  public String getFileContent(Credentials credentials, String repositoryName, String filePath,
                                @Nullable String ref) throws IOException {
-    GetFileResponse getFileResponse = getFile(user, repositoryName, filePath, ref);
+    GetFileResponse getFileResponse = getFile(credentials, repositoryName, filePath, ref);
     return getFileResponse.getContent();
   }
 
   /**
    * Reads file's SHA from the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param ref            name of the commit/branch/tag. Default: the repository’s default branch (usually master)
    * @return File's SHA
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file doesn't exist.
    */
-  public String getFileSHA(User user, String repositoryName, String filePath, @Nullable String ref) throws IOException {
-    GetFileResponse getFileResponse = getFile(user, repositoryName, filePath, ref);
+  public String getFileSHA(Credentials credentials, String repositoryName, String filePath,
+                           @Nullable String ref) throws IOException {
+    GetFileResponse getFileResponse = getFile(credentials, repositoryName, filePath, ref);
     return getFileResponse.getSha();
   }
 
   /**
    * Deletes file from the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param commitMessage  message for the commit.
    * @param branch         name of the brunch, you'd like to delete file.
    * @return successfulness of the operation.
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file doesn't exist.
    */
-  public boolean deleteFile(User user, String repositoryName, String filePath, String commitMessage,
+  public boolean deleteFile(Credentials credentials, String repositoryName, String filePath, String commitMessage,
                             @Nullable String branch) throws IOException {
-    String sha = getFileSHA(user, repositoryName, filePath, branch);
+    String sha = getFileSHA(credentials, repositoryName, filePath, branch);
     DeleteFileRequest deleteFileRequest =
-        new DeleteFileRequest(user, repositoryName, filePath, commitMessage, sha, branch);
+        new DeleteFileRequest(credentials, repositoryName, filePath, commitMessage, sha, branch);
 
     HttpResponse httpResponse = requestProcessor.sendRequest(deleteFileRequest, "DELETE");
 
@@ -150,21 +151,21 @@ public class FileAPI {
   /**
    * Updates (changes) file content in the GitHub repository.
    *
-   * @param user           user object is used to authenticate.
+   * @param credentials    credentials object is used to authenticate.
    * @param repositoryName name of the repository
    * @param filePath       path to the file in the repository. It shouldn't contains repository name.
    * @param content        new content of the file you'd like to create.
    * @param commitMessage  message for the commit.
    * @param branch         name of the brunch, you'd like to update file.
    * @return successfulness of the operation.
-   * @throws IOException if network issues occur
+   * @throws IOException if network issues occur or file doesn't exist.
    */
-  public boolean updateFile(User user, String repositoryName, String filePath, String content, String commitMessage,
-                            String branch) throws IOException {
-    String sha = getFileSHA(user, repositoryName, filePath, branch);
+  public boolean updateFile(Credentials credentials, String repositoryName, String filePath, String content,
+                            String commitMessage, String branch) throws IOException {
+    String sha = getFileSHA(credentials, repositoryName, filePath, branch);
 
     FileRequest createFileRequest =
-        new UpdateFileRequest(user, repositoryName, filePath, commitMessage, sha, content, branch);
+        new UpdateFileRequest(credentials, repositoryName, filePath, commitMessage, sha, content, branch);
 
     HttpResponse response = requestProcessor.sendPutRequest(createFileRequest);
 

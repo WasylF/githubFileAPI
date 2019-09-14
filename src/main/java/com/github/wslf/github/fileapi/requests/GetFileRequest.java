@@ -1,6 +1,6 @@
 package com.github.wslf.github.fileapi.requests;
 
-import com.github.wslf.github.User;
+import com.github.wslf.github.Credentials;
 import com.google.api.client.util.Key;
 
 import javax.annotation.Nullable;
@@ -10,8 +10,8 @@ public class GetFileRequest extends FileRequest {
   @Key
   private String ref;
 
-  public GetFileRequest(User user, String repositoryName, String filePath, String ref) {
-    super(user, repositoryName, filePath);
+  public GetFileRequest(Credentials credentials, String repositoryName, String filePath, String ref) {
+    super(credentials, repositoryName, filePath);
     this.ref = ref;
   }
 

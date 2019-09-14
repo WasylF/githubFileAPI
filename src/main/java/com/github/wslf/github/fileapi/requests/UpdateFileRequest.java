@@ -1,6 +1,6 @@
 package com.github.wslf.github.fileapi.requests;
 
-import com.github.wslf.github.User;
+import com.github.wslf.github.Credentials;
 import com.google.api.client.util.Key;
 
 import javax.annotation.Nullable;
@@ -18,9 +18,9 @@ public class UpdateFileRequest extends FileRequest {
   @Key
   final String content;
 
-  public UpdateFileRequest(User user, String repositoryName, String filePath, String message, String sha,
+  public UpdateFileRequest(Credentials credentials, String repositoryName, String filePath, String message, String sha,
                            String originalContent, @Nullable String branch) {
-    super(user, repositoryName, filePath);
+    super(credentials, repositoryName, filePath);
     this.message = message;
     this.sha = sha;
     this.content = Base64.getEncoder().encodeToString(originalContent.getBytes(StandardCharsets.UTF_8));

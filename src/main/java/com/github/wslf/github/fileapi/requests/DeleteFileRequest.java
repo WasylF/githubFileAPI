@@ -1,6 +1,6 @@
 package com.github.wslf.github.fileapi.requests;
 
-import com.github.wslf.github.User;
+import com.github.wslf.github.Credentials;
 import com.google.api.client.util.Key;
 
 import javax.annotation.Nullable;
@@ -15,9 +15,9 @@ public class DeleteFileRequest extends FileRequest {
   @Nullable
   final String branch;
 
-  public DeleteFileRequest(User user, String repositoryName, String filePath, String message, String sha,
+  public DeleteFileRequest(Credentials credentials, String repositoryName, String filePath, String message, String sha,
                            String branch) {
-    super(user, repositoryName, filePath);
+    super(credentials, repositoryName, filePath);
     this.message = message;
     this.sha = sha;
     this.branch = branch;

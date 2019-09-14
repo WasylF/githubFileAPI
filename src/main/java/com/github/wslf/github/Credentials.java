@@ -7,17 +7,17 @@ import javax.annotation.Nullable;
 /**
  * @author Wsl_F
  */
-public class User {
+public class Credentials {
   private final String name;
   @Nullable
   private final String token;
 
-  public User(String name) {
+  public Credentials(String name) {
     this.name = name;
     this.token = null;
   }
 
-  public User(String name, @Nonnull String token) {
+  public Credentials(String name, @Nonnull String token) {
     this.name = name;
     this.token = token;
   }
