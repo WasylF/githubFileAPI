@@ -8,4 +8,5 @@ public class Constants {
 
   public static final String CONTENT_TYPE = "application/vnd.github.v3+json";
 
+  public static final String FILE_NOT_FOUND_STATUS_MESSAGE = "Not Found";
 }

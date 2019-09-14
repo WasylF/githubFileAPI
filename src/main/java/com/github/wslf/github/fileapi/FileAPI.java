@@ -4,11 +4,14 @@ import com.github.wslf.github.Credentials;
 import com.github.wslf.github.fileapi.requests.*;
 import com.github.wslf.github.fileapi.responses.GetFileResponse;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+
+import static com.github.wslf.github.fileapi.Constants.FILE_NOT_FOUND_STATUS_MESSAGE;
 
 /**
  * This class allows you to create, modify or delete file from your GitHub repository.
@@ -171,4 +174,53 @@ public class FileAPI {
 
     return response.isSuccessStatusCode();
   }
+
+
+  /**
+   * Checks existence of the file.
+   *
+   * @param credentials    credentials object is used to authenticate.
+   * @param repositoryName name of the repository
+   * @param filePath       path to the file in the repository. It shouldn't contains repository name.
+   * @param ref            name of the commit/branch/tag. Default: the repository’s default branch (usually master)
+   * @return file existence
+   * @throws IOException if network issues occur.
+   */
+  public boolean exists(Credentials credentials, String repositoryName, String filePath,
+                        @Nullable String ref) throws IOException {
+    boolean exists = true;
+    try {
+      getFile(credentials, repositoryName, filePath, ref);
+    } catch (HttpResponseException ex) {
+      if (ex.getStatusCode() == 404 && FILE_NOT_FOUND_STATUS_MESSAGE.equals(ex.getStatusMessage())) {
+        exists = false;
+      } else {
+        throw ex;
+      }
+    }
+
+    return exists;
+  }
+
+  /**
+   * Creates or updates (if it's already exists) file in the GitHub repository.
+   *
+   * @param credentials    credentials object is used to authenticate.
+   * @param repositoryName name of the repository
+   * @param filePath       path to the file in the repository. It shouldn't contains repository name.
+   * @param content        content of the file you'd like to create.
+   * @param commitMessage  message for the commit.
+   * @param branch         name of the brunch, you'd like to create file.
+   * @return successfulness of the operation.
+   * @throws IOException if network issues occur.
+   */
+  public boolean createOrUpdateFile(Credentials credentials, String repositoryName, String filePath, String content,
+                                    String commitMessage, String branch) throws IOException {
+    if (exists(credentials, repositoryName, filePath, branch)) {
+      return updateFile(credentials, repositoryName, filePath, content, commitMessage, branch);
+    } else {
+      return createFile(credentials, repositoryName, filePath, content, commitMessage, branch);
+    }
+  }
+
 }
